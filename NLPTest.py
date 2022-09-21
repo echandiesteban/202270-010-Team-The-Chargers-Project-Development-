@@ -1,14 +1,17 @@
 
-# Import the os module
+# Import 
 import os
+import numpy as np
+import seaborn as sns
+import pandas as pd
+import spacy_sentence_bert
+
 
 # Get the current working directory
+
 cwd = os.getcwd()
 print(cwd)
 
-# import pandas lib as pd
-import pandas as pd
- 
 # read by default 1st sheet of an excel file
 df = pd.read_excel('TestExcel5.xlsx')
 
@@ -36,23 +39,15 @@ counts.plot(kind='bar', legend=False, grid=True, figsize=(8, 5))
 counts = data['label'].value_counts()
 counts.plot(kind='bar', legend=False, grid=True, figsize=(8, 5))
 
-
-import numpy as np
-
 lens = data.text.str.len()
 lens.hist(bins = np.arange(0,200,5))
 
 #BERT Word Vectors
 
-import spacy_sentence_bert
-
 nlp = spacy_sentence_bert.load_model('en_stsb_bert_large')
 #nlp = spacy_sentence_bert.load_model('en_stsb_distilbert_base')
 
 df['vector'] = df['text'].apply(lambda x: nlp(x).vector)
-
-#split the data into training and testing sets
-
 
 
 #**************LABEL***************
@@ -79,6 +74,8 @@ print(accuracy_score(y_test, y_pred))
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred))
 
+clf_report = classification_report(y_test,y_pred,output_dict=True)
+sns.heatmap(pd.DataFrame(clf_report).iloc[:-1, :].T, cmap="PiYG",annot=True)
 
 
 #**************LABEL2***************
@@ -104,12 +101,8 @@ print(accuracy_score(y_test, y_pred))
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred))
 
-
-
-
-
-
-
+clf_report = classification_report(y_test,y_pred,output_dict=True)
+sns.heatmap(pd.DataFrame(clf_report).iloc[:-1, :].T, cmap="PiYG",annot=True)
 
 #Test Algorithm
 
@@ -121,12 +114,33 @@ for Examples, label in zip(Examples, label):
   print(Examples,)
   print(f"True Label: {label}, Predicted Label: {clf.predict(nlp(Examples).vector.reshape(1, -1))[0]} \n")
 
-# Visualizaion
 
-import numpy as np
+# Visualizations
 
 from sklearn.manifold import TSNE
 
+X = list(df["vector"])
+
+X_embedded = TSNE(n_components=2).fit_transform(X)
+
+df_embeddings = pd.DataFrame(X_embedded)
+df_embeddings = df_embeddings.rename(columns={0:'x',1:'y'})
+
+
+df2 = pd.merge(df, df_embeddings, left_index=True, right_index=True)
+
+groups = df2.groupby("label")
+
+for name, group in groups:
+    plt.plot(group["x"], group["y"], marker="o", linestyle="", label=name,markersize=3)
+plt.legend(loc='best', bbox_to_anchor=(0.5,-0.1))
+
+
+groups2 = df2.groupby("label2")
+
+for name, group in groups2:
+    plt.plot(group["x"], group["y"], marker="o", linestyle="", label=name,markersize=3)
+plt.legend(loc='best', bbox_to_anchor=(0.5,-0.1))
 
 
 
@@ -154,3 +168,5 @@ from sklearn.manifold import TSNE
 
 
 
+
+df_embeddings.plot.scatter(x = 'x', y = 'y')
