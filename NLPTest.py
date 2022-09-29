@@ -12,7 +12,7 @@ cwd = os.getcwd()
 print(cwd)
 
 # read by default 1st sheet of an excel file
-df = pd.read_excel('TestExcel7.xlsx')
+df = pd.read_excel('TestExcel8.xlsx')
 
 #from nltk.corpus import stopwords
 #stop = stopwords.words('english')
@@ -35,13 +35,13 @@ df = df.dropna()
 
 
 # Frecuencies
-counts = data['label2'].value_counts()
+counts = df['label2'].value_counts()
 counts.plot(kind='bar', legend=False, grid=True, figsize=(8, 5))
 
-counts = data['label'].value_counts()
+counts = df['label'].value_counts()
 counts.plot(kind='bar', legend=False, grid=True, figsize=(8, 5))
 
-lens = data.text.str.len()
+lens = df.text.str.len()
 lens.hist(bins = np.arange(0,200,5))
 
 df = df.replace({"l/g":"landing gear", "hsc-manual":"high speed counter manual", "vnav":"vertical navigation", "lnav ":"lateral navigation", "econ":"optimum descent speed", "flx":"reduced takeoff thrust", "mct":"maximum continuous thrust", "mcp":"maximum continuous power", "n1":"cockpit gauge which presents the rotational speed of the low pressure", "to/ga":"take-off go Around", "v/s":"stalling speed", "g/s":"ground Stop", "spd ":"speed mode", "flch":"flight level change", "alt":"altitude", "pth":"path"}, regex=True)
@@ -97,7 +97,7 @@ sns.heatmap(pd.DataFrame(clf_report).iloc[:-1, :].T, cmap="PiYG",annot=True)
 #**************LABEL2***************
 from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(df['vector'].tolist(), df['lable2'].tolist(), test_size=0.3, random_state=690)
+X_train, X_test, y_train, y_test = train_test_split(df['vector'].tolist(), df['label2'].tolist(), test_size=0.3, random_state=690)
 
 # train your choice of machine learning classifier
 from sklearn.svm import SVC
